@@ -1,16 +1,18 @@
-// import { Module } from '@nestjs/common';
-// import { MulterModule } from '@nestjs/platform-express';
-// import { multerOptionsFactory } from 'src/common/utils/multer.options.factory';
-// import { UploadImageController } from './upload-image.controller';
-// import { UploadImageService } from './upload-image.service';
+import { Global, Module } from '@nestjs/common';
 
-// @Module({
-//   imports: [
-//     MulterModule.registerAsync({
-//       useFactory: multerOptionsFactory,
-//     }),
-//   ],
-//   controllers: [UploadImageController],
-//   providers: [UploadImageService],
-// })
-// export class UploadImageModule {}
+import { UploadImageController } from './upload-image.controller';
+import { IUploadImage } from './upload-image.interface';
+import { UploadImageService } from './upload-image.service';
+
+@Global()
+@Module({
+  //   imports: [AwsModule],
+  providers: [
+    {
+      provide: IUploadImage,
+      useClass: UploadImageService,
+    },
+  ],
+  exports: [IUploadImage],
+})
+export class UploadImageModule {}

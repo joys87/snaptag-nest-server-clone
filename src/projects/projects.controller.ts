@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateProjectsBodyRequestDto } from './dtos/snaptag/create-projects-request.dto';
 import { CreateProjectsResponseDto } from './dtos/snaptag/create-projects-response.dto';
-import { ProjectsService } from './projects.service';
+import { ProjectsService } from './service';
 
 @Controller({ path: '/sa/projects', version: ['1'] })
 @ApiTags('[Embedding] Projects')
