@@ -5,5 +5,11 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "@app/upload-image/(.*)": "<rootDir>/../libs/upload-image/src/$1",
+    "@app/upload-image": "<rootDir>/../libs/upload-image/src",
+    "@app/prisma/(.*)": "<rootDir>/../libs/prisma/src/$1",
+    "@app/prisma": "<rootDir>/../libs/prisma/src"
   }
 }

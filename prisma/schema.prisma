@@ -1,0 +1,589 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TeamStatus {
+  APPLIED   // 신청 완료
+  ACTIVE    // 활성화
+  INACTIVE  // 비활성화
+}
+
+model Teams {
+  id                  Int           @id @default(autoincrement())
+  created             DateTime      @default(now())
+  modified            DateTime      @updatedAt
+  title               String?
+  description         String?
+  call                String?
+  logoImage           String?
+  businessNumber      String?
+  businessImage       String?
+  homepage            String?
+  managerName         String?
+  managerEmail        String?
+  managerPhone        String?
+  address             String?
+  status              TeamStatus    @default(ACTIVE)
+  isAdmin             Boolean       @default(false)
+  apiKey              String        @db.Uuid  @default(uuid())
+  apiSecret           String        @db.Uuid  @default(uuid())
+  refreshToken        String?
+
+  @@unique([apiKey, apiSecret])
+
+  // relation
+  // Teams --< Projects
+  projects            Projects[]
+  // Teams --< Scans
+  scans               Scans[]
+  // Teams --< EcoScans
+  ecoScans            EcoScans[]
+  // Teams --< ProductInfoGroups
+  productInfoGroups   ProductInfoGroups[]
+  // Teams --< Users
+  users               Users[]
+  // Teams --< Tests
+  tests       Tests[]
+}
+
+enum UserStatus {
+  APPLIED   // 신청 완료
+  ACTIVE    // 승인 완료
+  INACTIVE  // 승인 거절
+  REJECTED  // 탈퇴
+  RESIGNED  // 퇴사
+}
+
+model Users {
+  id                Int                 @id @default(autoincrement())
+  created           DateTime            @default(now())
+  modified          DateTime            @updatedAt
+  teamId            Int?
+  email             String              @unique
+  phone             String?             @unique
+  name              String?
+  birth             String?
+  password          String
+  bmCode            Int                 @default(0)
+  status            UserStatus          @default(APPLIED)
+  isAdmin           Boolean             @default(false)
+  isStaff           Boolean             @default(false)
+  isCustomer        Boolean             @default(false)
+  isProgram         Boolean             @default(false)
+  refreshToken      String?
+
+  // relation
+  // Users >-- Teams
+  teams             Teams?              @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  // Users --< Products
+  products          Products[]
+  // Users --< ProductHistories
+  productHistories  ProductHistories[]
+}
+
+model Versions {
+  id          Int               @id @default(autoincrement())
+  created     DateTime          @default(now())
+  modified    DateTime          @updatedAt
+  code        Int               @unique
+  title       String
+  status      Status            @default(ACTIVE)
+
+  // relation
+  // Versions --< Industries
+  industries  Industries[]
+  // Versions --< Countries
+  counties    Countries[]
+  // Versions --< Projects
+  projects    Projects[]
+  // Versions --< Tests
+  tests       Tests[]
+}
+
+enum Status {
+  ACTIVE    // 활성화
+  INACTIVE  // 비활성화
+}
+
+model Countries {
+  id          Int               @id @default(autoincrement())
+  created     DateTime          @default(now())
+  modified    DateTime          @updatedAt
+  versionId   Int
+  code        Int
+  title       String
+  status      Status            @default(ACTIVE)
+
+  // relation
+  // Countries >-- Versions
+  versions    Versions          @relation(fields: [versionId], references: [id], onDelete: Restrict)
+  // Countries --< Projects
+  projects    Projects[]
+  // Countries --< Tests
+  tests       Tests[]
+}
+
+model Industries {
+  id                  Int                   @id @default(autoincrement())
+  created             DateTime              @default(now())
+  modified            DateTime              @updatedAt
+  versionId           Int
+  versionCode         Int
+  code                Int
+  title               String
+  maxTeamCode         BigInt?
+  maxMainCategoryCode BigInt?
+  maxSubCategoryCode  BigInt?
+  maxProjectCode      BigInt?
+  maxProductCode      BigInt?
+  status              Status                @default(ACTIVE)
+  isVariable          Boolean               @default(false)
+  isMaxCode           Boolean               @default(false)
+  isDigital           Boolean               @default(false)
+  isNFT               Boolean               @default(false)
+  isAdminOnly         Boolean               @default(false)
+
+  // relation
+  // Industries >-- Versions
+  versions            Versions              @relation(fields: [versionId], references: [id], onDelete: Restrict)
+  // Industries --< MainCategories
+  mainCategories      MainCategories[]
+  // Industries --< Projects
+  projects            Projects[]
+  // Industries --< Scans
+  scans               Scans[]
+  // Industries --< EcoScans
+  ecoScans            EcoScans[]
+  // Industries --< Tests
+  tests       Tests[]
+}
+
+model MainCategories {
+  id            Int                     @id @default(autoincrement())
+  created       DateTime                @default(now())
+  modified      DateTime                @updatedAt
+  industryId    Int
+  code          Int
+  title         String?
+  order         Int?
+  countProject  Int?                    @default(0)
+
+  // relation
+  // MainCategories >-- Industries
+  industries    Industries              @relation(fields: [industryId], references: [id])
+  // MainCategories --< SubCategories
+  subCategories SubCategories[]
+  // MainCategories --< Projects
+  projects      Projects[]
+  // MainCategories --< Scans
+  scans         Scans[]
+  // MainCategories --< EcoScans
+  ecoScans      EcoScans[]
+}
+
+model SubCategories {
+  id              Int                   @id @default(autoincrement())
+  created         DateTime              @default(now())
+  modified        DateTime              @updatedAt
+  mainCategoryId  Int
+  code            Int
+  title           String?
+  order           Int?
+  countProject    Int                   @default(0)
+
+  // relation
+  // SubCategories >-- MainCategories
+  mainCategories  MainCategories        @relation(fields: [mainCategoryId], references: [id], onDelete: Cascade)
+  // SubCategories --< Projects
+  projects        Projects[]
+  // SubCategories --< Scans
+  scans           Scans[]
+  // SubCategories --< EcoScans
+  ecoScans        EcoScans[]
+}
+
+model Bms {
+  id                Int                 @id @default(autoincrement())
+  created           DateTime            @default(now())
+  modified          DateTime            @updatedAt
+  code              Int
+  title             String?
+  maxProductCode    BigInt
+  maxUserCode       BigInt
+  price             Int?
+  status            Status              @default(ACTIVE)
+
+  //relation
+  projects          Projects[]
+}
+
+enum ProjectStatus {
+  APPLIED   // 신청 완료
+  ACTIVE    // 승인 완료
+  INACTIVE  // 승인 미완료
+  REJECTED  // 승인 거절
+}
+
+model Projects {
+  id                Int                 @id @default(autoincrement())
+  created           DateTime            @default(now())
+  modified          DateTime            @updatedAt
+  versionId         Int?
+  versionCode       Int?
+  countryId         Int?
+  countryCode       Int?
+  industryId        Int?
+  industryCode      Int?
+  teamId            Int?
+  teamCode          Int?
+  mainCategoryId    Int?
+  mainCategoryCode  Int?
+  subCategoryId     Int?
+  subCategoryCode   Int?
+  bmId              Int?
+  bmCode            Int?
+  code              Int
+  title             String?
+  description       String?
+  bannerImage       String?
+  homepage          String?
+  status            ProjectStatus       @default(APPLIED)
+
+  // relation
+  // Projects >-- Versions
+  versions          Versions?           @relation(fields: [versionId], references: [id], onDelete: Restrict)
+  // Projects >-- Countries
+  countries         Countries?          @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  // Projects >-- Industries
+  industries        Industries?         @relation(fields: [industryId], references: [id], onDelete: Restrict)
+  // Projects >-- Teams
+  teams             Teams?              @relation(fields: [teamId], references: [id], onDelete: Restrict)
+  // Projects >-- MainCategories
+  mainCategories    MainCategories?     @relation(fields: [mainCategoryId], references: [id], onDelete: Restrict)
+  // Projects >-- SubCategories
+  subCategories     SubCategories?      @relation(fields: [subCategoryId], references: [id], onDelete: Restrict)
+  // Projects >-- Bms
+  bms               Bms?                @relation(fields: [bmId], references: [id], onDelete: Restrict)
+  // Projects --< Products
+  products          Products[]
+  // Projects --< Scans
+  scans             Scans[]
+  // Projects --< EcoScans
+  ecoScans          EcoScans[]
+  // Projects --< ProductHistories
+  productHistories  ProductHistories[]
+}
+
+enum Embedding {
+  v0            @map("0.0")
+  v05           @map("0.5")
+  v10           @map("1.0")
+  v15           @map("1.5")
+  v20           @map("2.0")
+  v25           @map("2.5")
+  v11           @map("1.1")
+  v20_B         @map("2.0_B")
+  v20_W         @map("2.0_W")
+  v10_W         @map("1.0_W")
+  v10_B         @map("1.0_B")
+  v30           @map("3.0")
+  v35           @map("3.5")
+}
+
+enum Channel {
+  lab
+  luminance
+  data
+  rgb
+  yuv
+  cmyk
+  ycrcb
+}
+
+enum ProductStatus {
+  ACTIVE    // 활성화
+  INACTIVE  // 비활성화
+}
+
+model Products {
+  id                        Int                 @id @default(autoincrement())
+  created                   DateTime            @default(now())
+  modified                  DateTime            @updatedAt
+  projectId                 Int?
+  userId                    Int?
+  userCode                  Int?
+  code                      Int
+  title                     String?
+  description               String?
+  sourceImage               String?
+  resizedSourceImage        String?
+  labcodeImage              String?
+  url                       String?
+  urlPurchase               String?
+  urlCustom                 String?
+  urlInstagram              String?
+  embedding                 Embedding           @default(v25)
+  channel                   Channel             @default(lab)
+  scale                     Int                 @default(4)
+  alpha                     Int                 @default(8)
+  isMass                    Boolean             @default(false)
+  unit                      Int                 @default(1)
+  amount                    Int                 @default(1)
+  dpi                       Int                 @default(300)
+  status                    ProductStatus       @default(ACTIVE)
+
+  // relation
+  // Products >-- Projects
+  projects            Projects?           @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  // Products >-- Users
+  users               Users?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // Products --< Scan
+  scans               Scans[]
+  // Products --< EcoScan
+  ecoScans            EcoScans[]
+  // Products --- ProductPrintInfos
+  productPrintInfos   ProductPrintInfos?
+  // Products --- ProductTranslations
+  productTranslations ProductTranslations?
+  // Products --< ProductInfoGroups
+  productInfoGroups   ProductInfoGroups[]
+  // Products --< ProductInfos
+  productInfos        ProductInfos[]
+  // Products --< ProductHistories
+  productHistories    ProductHistories[]
+}
+
+model ProductTranslations {
+  id                        Int                 @id @default(autoincrement())
+  created                   DateTime            @default(now())
+  productId                 Int                 @unique
+  cnInfo                    Json?
+
+  // relation
+  // ProductsCN --- Products
+  products                  Products            @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductHistories {
+  id                  Int                 @id @default(autoincrement())
+  created             DateTime            @default(now())
+  modified            DateTime            @updatedAt
+  productId           Int?
+  projectId           Int?
+  userId              Int?
+  userCode            Int?
+  code                Int
+  title               String?
+  description         String?
+  sourceImage         String?
+  labcodeImage        String?
+  url                 String?
+  urlPurchase         String?
+  urlCustom           String?
+  urlInstagram        String?
+  embedding           Embedding           @default(v25)
+  channel             Channel             @default(lab)
+  scale               Int                 @default(4)
+  alpha               Int                 @default(8)
+  isMass              Boolean             @default(false)
+  unit                Int?                @default(1)
+  amount              Int?                @default(1)
+  dpi                 Int?                @default(300)
+  status              ProductStatus       @default(ACTIVE)
+
+  // relation
+  // ProductHistories >-- Projects
+  projects            Projects?           @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  // ProductHistories >-- Products
+  products            Products?           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // ProductHistories >-- Users
+  users               Users?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model ProductPrintInfos {
+  id                  Int                 @id @default(autoincrement())
+  created             DateTime            @default(now())
+  modified            DateTime            @updatedAt
+  productId           Int                 @unique
+  printType           String?
+  printMethod         String?
+  printingMaterial    String?
+  printCompany        String?
+  printCopperCompany  String?
+  printDate           DateTime?
+  printOrder          Int?
+
+  // relation
+  // ProductPrintInfos --- Products
+  products            Products                  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductInfoGroups {
+  id                Int                 @id @default(autoincrement())
+  created           DateTime            @default(now())
+  modified          DateTime            @updatedAt
+  teamId            Int?
+  productId         Int?
+  title             String
+  productInfoIds    Int[]
+
+  // relation
+  // ProductInfoGroups >-- Teams
+  teams             Teams?              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  // ProductInfoGroups >-- Products
+  products          Products?           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // ProductInfoGroups --< ProductInfos
+  productInfos      ProductInfos[]
+}
+
+enum ProductInfoType {
+  text
+  number
+  boolean
+  date
+  url
+  image
+}
+
+model ProductInfos {
+  id                  Int                 @id @default(autoincrement())
+  created             DateTime            @default(now())
+  modified            DateTime            @updatedAt
+  productId           Int?
+  productInfoGroupId  Int?
+  title               String?
+  type                ProductInfoType?    @default(text)
+  text                String?
+  number              Int?
+  date                DateTime?
+  boolean             Boolean?
+  url                 String?
+  image               String?
+  order               Int?
+
+  // relation
+  // ProductInfos >-- Products
+  products            Products?           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // ProductInfos >-- ProductInfoGroups
+  productInfoGroups   ProductInfoGroups?  @relation(fields: [productInfoGroupId], references: [id], onDelete: Cascade)
+}
+
+model Scans {
+  id                Int                 @id @default(autoincrement())
+  created           DateTime            @default(now())
+  modified          DateTime            @updatedAt
+  productId         Int?
+  projectId         Int?
+  teamId            Int?
+  industryId        Int?
+  mainCategoryId    Int?
+  subCategoryId     Int?
+  deviceId          String
+  deviceInfo        Json?
+
+  // relation
+  // Scans >-- Products
+  products          Products?           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // Scans >-- Projects
+  projects          Projects?           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Scans >-- Teams
+  teams             Teams?              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  // Scans >-- Industries
+  industries        Industries?         @relation(fields: [industryId], references: [id], onDelete: Cascade)
+  // Scans >-- MainCategories
+  mainCategories    MainCategories?     @relation(fields: [mainCategoryId], references: [id], onDelete: Cascade)
+  // Scans >-- SubCategories
+  subCategories     SubCategories?      @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+}
+
+model EcoScans {
+  id                Int                 @id @default(autoincrement())
+  created           DateTime            @default(now())
+  modified          DateTime            @updatedAt
+  deviceId          String?
+  deviceInfo        Json?
+  industryId        Int?
+  mainCategoryId    Int?
+  subCategoryId     Int?
+  teamId            Int?
+  projectId         Int?
+  productId         Int?
+
+  // relation
+  // EcoScans >-- Products
+  products          Products?           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // EcoScans >-- Projects
+  projects          Projects?           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // EcoScans >-- Teams
+  teams             Teams?              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  // EcoScans >-- Industries
+  industries        Industries?         @relation(fields: [industryId], references: [id], onDelete: Cascade)
+  // EcoScans >-- MainCategories
+  mainCategories    MainCategories?     @relation(fields: [mainCategoryId], references: [id], onDelete: Cascade)
+  // EcoScans >-- SubCategories
+  subCategories     SubCategories?      @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+}
+
+model Banners {
+  id                  Int                 @id @default(autoincrement())
+  created             DateTime            @default(now())
+  modified            DateTime            @updatedAt
+  code                Int
+  bannerImageUrl      String?
+  bannerOriginalName  String?
+  bannerMovieUrl      String?
+}
+
+model Contractors {
+  id                  Int                 @id @default(autoincrement())
+  created             DateTime            @default(now())
+  modified            DateTime            @updatedAt
+  code                Int
+  logoImageUrl        String?
+  contractorName      String?
+}
+
+model Inquiries {
+  id                  Int                 @id @default(autoincrement())
+  created             DateTime            @default(now())
+  modified            DateTime            @updatedAt
+  userId              Int?
+  name                String
+  email               String
+  phone               String
+  title               String
+  description         String
+}
+
+model Tests {
+  id                  Int                 @id @default(autoincrement())
+  created             DateTime            @default(now())
+  modified            DateTime            @updatedAt
+  userId              Int
+  versionId           Int
+  versionCode         Int
+  countryId           Int
+  countryCode         Int
+  industryId          Int
+  industryCode        Int
+  teamId              Int
+  teamCode            Int
+
+  // relation
+  // Tests >-- Versions
+  versions          Versions?           @relation(fields: [versionId], references: [id], onDelete: Restrict)
+  // Tests >-- Countries
+  countries         Countries?          @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  // Tests >-- Industries
+  industries        Industries?         @relation(fields: [industryId], references: [id], onDelete: Restrict)
+  // Tests >-- Teams
+  teams             Teams?              @relation(fields: [teamId], references: [id], onDelete: Restrict)
+}
