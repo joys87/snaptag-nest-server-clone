@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -16,6 +17,8 @@ import {
 } from '@nestjs/swagger';
 import { CreateProjectsBodyRequestDto } from './dtos/snaptag/create-projects-request.dto';
 import { CreateProjectsResponseDto } from './dtos/snaptag/create-projects-response.dto';
+import { GetProjectsQueryRequestDto } from './dtos/snaptag/get-projects-request.dto';
+import { GetProjectsResponseDto } from './dtos/snaptag/get-projects-response.dto';
 import { ProjectsService } from './service';
 
 @Controller({ path: '/sa/projects', version: ['1'] })
@@ -44,6 +47,23 @@ export class ProjectsController {
     return new CreateProjectsResponseDto({
       projects,
     });
-    console.log(dto);
+  }
+
+  @Get()
+  // @SnaptagJwtAuth()
+  @ApiOperation({
+    summary: '조건별 프로젝트들 조회 API',
+  })
+  @ApiOkResponse({
+    type: GetProjectsResponseDto,
+  })
+  public async getProjects(
+    @Query() getProjectsQueryRequestDto: GetProjectsQueryRequestDto,
+  ) {
+    const result = await this.projectsService.findByConditions(
+      getProjectsQueryRequestDto,
+    );
+
+    return new GetProjectsResponseDto(result);
   }
 }

@@ -10,6 +10,7 @@ import {
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiConsumes,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -31,42 +32,41 @@ export class TeamsController {
   // nest 공식문서에서 생성자 활용 찾아보기
 
   @Post()
-  //   @ApiConsumes('multupart/form-data')
+  @ApiConsumes('multupart/form-data')
   @ApiOperation({
     summary: '팀 생성 API',
     description:
       '팀을 생성하는 API입니다. 그런데 값으로는 모두 null 이 들어갑니다?! ',
   })
-  @ApiOkResponse({ description: '생성 성공시 결과 예시' })
-  //   @UseInterceptors(
-  //     FileFieldsInterceptor([
-  //       { name: 'logoImage', maxCount: 1 }, // fieldName, options
-  //       { name: 'businessImage', maxCount: 1 },
-  //     ]),
-  //   )
+  @ApiCreatedResponse({ type: CreateTeamsResponseDto })
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'logoImage', maxCount: 1 }, // fieldName, options
+      { name: 'businessImage', maxCount: 1 },
+    ]),
+  )
   // 인터셉터 공식문서 참조
   public async createTeams(
     @Body() createTeamsRequestDto: CreateTeamsRequestDto,
-    // @UploadedFiles()
-    // files: {
-    //   logoImage?: Express.Multer.File[];
-    //   businessImage?: Express.Multer.File[];
-    // },
+    @UploadedFiles()
+    files: {
+      logoImage?: Express.Multer.File[];
+      businessImage?: Express.Multer.File[];
+    },
   ) {
-    console.log(createTeamsRequestDto);
+    // console.log(createTeamsRequestDto);
     const { logoImage, businessImage, ...rest } = createTeamsRequestDto;
 
     const dto: CreateTeamsRequestDto = {
       ...rest,
-
-      //   logoImage: _.isEmpty(files?.logoImage) ? null : files.logoImage[0],
-      //   businessImage: _.isEmpty(files.businessImage)
-      //     ? null
-      //     : files.businessImage[0],
-      logoImage: null,
-      businessImage: null,
+      logoImage: _.isEmpty(files?.logoImage) ? null : files.logoImage[0],
+      businessImage: _.isEmpty(files.businessImage)
+        ? null
+        : files.businessImage[0],
+      // logoImage: null,
+      // businessImage: null,
     };
-    console.log(rest);
+    // console.log(rest);
     return new CreateTeamsResponseDto({
       teams: await this.teamsService.create(dto),
     });

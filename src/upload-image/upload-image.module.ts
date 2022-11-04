@@ -1,12 +1,12 @@
+import { AwsModule } from '@app/config/aws/aws.module';
 import { Global, Module } from '@nestjs/common';
 
-import { UploadImageController } from './upload-image.controller';
 import { IUploadImage } from './upload-image.interface';
 import { UploadImageService } from './upload-image.service';
 
 @Global()
 @Module({
-  //   imports: [AwsModule],
+  imports: [AwsModule],
   providers: [
     {
       provide: IUploadImage,

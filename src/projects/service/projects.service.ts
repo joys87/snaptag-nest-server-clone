@@ -1,14 +1,18 @@
+import { JsonService } from '@app/utils/json';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Prisma, ProjectStatus } from '@prisma/client';
+import _ from 'lodash';
 import { BmsService } from 'src/bms/bms.service';
 import { CountriesService } from 'src/countries/countries.service';
 import { IndustriesService } from 'src/industries/industries.service';
 import { MainCategoriesService } from 'src/main-categories/main-categories.service';
 import { SubCategoriesService } from 'src/sub-categories/sub-categories.service';
+import { GetTeamsWithProjectsQueryRequestDto } from 'src/teams/dtos/get-teams-with-projects-request.dto';
 import { IUploadImage } from 'src/upload-image/upload-image.interface';
-import { UploadImageService } from 'src/upload-image/upload-image.service';
 import { VersionsService } from 'src/versions/versions.service';
 import { CreateProjectsBodyRequestDto } from '../dtos/snaptag/create-projects-request.dto';
+import { GetProjectsQueryRequestDto } from '../dtos/snaptag/get-projects-request.dto';
+import { GetProjectsResponseDto } from '../dtos/snaptag/get-projects-response.dto';
 import { ProjectsError } from '../error';
 import { ProjectsRepository } from '../projects.repository';
 import { IGetCodeForCreate, IGetCodeForCreateOptions } from '../type';
@@ -161,5 +165,20 @@ export class ProjectsService {
     };
 
     return this.projectsRepository.create(data);
+  }
+
+  public async findByConditions(
+    dto: GetProjectsQueryRequestDto,
+  ): Promise<GetProjectsResponseDto> {
+    const [projects, total] = await this.projectsRepository.findByConditions(
+      dto,
+    );
+
+    return {
+      projects: _.isEmpty(projects)
+        ? null
+        : JsonService.parseForBigintType(projects),
+      total,
+    };
   }
 }

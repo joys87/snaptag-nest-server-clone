@@ -4,12 +4,25 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Industries, Status } from '@prisma/client';
+// import { Industries, Status } from '@prisma/client';
 import { IndustriesError } from './error';
 import { IndustriesRepository } from './industries.repository';
 
 @Injectable()
 export class IndustriesService {
   constructor(private readonly industriesRepository: IndustriesRepository) {}
+
+  // public async findIndustries({
+  //   versionId,
+  // }: GetIndustriesQueryRequestDto): Promise<Industries[] | null> {
+  //   const industries = await this.industriesRepository.findIndustries(
+  //     versionId,
+  //   );
+
+  //   return _.isEmpty(industries)
+  //     ? null
+  //     : JsonService.parseForBigintType<Industries[]>(industries);
+  // }
 
   public async getIndustryOfVersion(
     industryId: number,

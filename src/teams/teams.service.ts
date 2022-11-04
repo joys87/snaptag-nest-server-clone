@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Status, Teams } from '@prisma/client';
 import * as _ from 'lodash';
 import { PrismaService } from 'src/prisma';
+import { IUploadImage } from 'src/upload-image/upload-image.interface';
 // import { UploadImageService } from 'src/upload-image/upload-image.service';
 import { CreateTeamsRequestDto } from './dtos/create-teams-request.dto';
 import { GetTeamRequestDto } from './dtos/get-teams-request.dto';
@@ -11,26 +12,28 @@ import { TeamsRepository } from './teams.repository';
 @Injectable()
 export class TeamsService {
   constructor(
-    // private readonly uploadImageService: UploadImageService,
     private readonly teamsRepository: TeamsRepository,
     private readonly prismaService: PrismaService,
-  ) {}
+    private readonly uploadImageService: IUploadImage,
+  ) // 종속성 문제를 해결하기 위해 추상클래스인 IUploadImagefmf 생성자 기반으로 불러옴
+  // 관련된 아티클 기사 https://dev.to/ef/nestjs-dependency-injection-with-abstract-classes-4g65
+  {}
 
   public async create({
     logoImage,
     businessImage,
     ...rest
   }: CreateTeamsRequestDto) {
-    // const logoImageUrl = logoImage
-    //   ? await this.uploadImageService.getUploadImageUrl(logoImage, 'teams')
-    //   : null;
+    const logoImageUrl = logoImage
+      ? await this.uploadImageService.getUploadImageUrl(logoImage, 'teams')
+      : null;
 
-    // const businessImageUrl = businessImage
-    //   ? await this.uploadImageService.getUploadImageUrl(businessImage, 'teams')
-    //   : null;
-    const logoImageUrl = null;
+    const businessImageUrl = businessImage
+      ? await this.uploadImageService.getUploadImageUrl(businessImage, 'teams')
+      : null;
+    // const logoImageUrl = null;
 
-    const businessImageUrl = null;
+    // const businessImageUrl = null;
 
     try {
       return await this.teamsRepository.create({

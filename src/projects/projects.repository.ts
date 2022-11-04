@@ -1,20 +1,27 @@
+import { dbNow } from '@app/utils/date';
+import { Injectable } from '@nestjs/common';
 import { Prisma, Projects } from '@prisma/client';
-import dayjs from 'dayjs';
-import { PrismaService } from 'src/prisma';
-import { IGetMaxCodeByIdsOptions, IGetMaxTeamCodeByIdsOptions } from './type';
 
+import { PrismaService } from 'src/prisma';
+import { GetProjectsQueryRequestDto } from './dtos/snaptag/get-projects-request.dto';
+import { GetProjectsResponseDto } from './dtos/snaptag/get-projects-response.dto';
+import {
+  IGetMaxCodeByIdsOptions,
+  IGetMaxTeamCodeByIdsOptions,
+  TGetProjects,
+} from './type';
+
+@Injectable()
 export class ProjectsRepository {
   constructor(private readonly prismaService: PrismaService) {}
-
-  dbNow = (): Date => dayjs().add(9, 'hour').toDate();
 
   public create(
     data: Omit<Prisma.ProjectsCreateInput, 'created' | 'modified'>,
   ): Promise<Projects> {
     return this.prismaService.projects.create({
       data: {
-        created: this.dbNow(),
-        modified: this.dbNow(),
+        created: dbNow(),
+        modified: dbNow(),
         ...data,
       },
     });
@@ -70,5 +77,60 @@ export class ProjectsRepository {
         subCategoryId,
       },
     });
+  }
+
+  public findByConditions(
+    options: GetProjectsQueryRequestDto,
+  ): Promise<TGetProjects> {
+    const {
+      page,
+      pageSize,
+      status,
+      projectId: id,
+      versionId,
+      countryId,
+      industryId,
+      teamId,
+      mainCategoryId,
+      subCategoryId,
+      title,
+      isVariable,
+    } = options;
+    const where: Prisma.ProjectsWhereInput = {
+      id,
+      status,
+      versionId,
+      countryId,
+      industryId,
+      teamId,
+      mainCategoryId,
+      subCategoryId,
+      title: {
+        contains: title,
+      },
+      industries: {
+        isVariable,
+      },
+      bmCode: {
+        in: null,
+      },
+    };
+
+    return this.prismaService.$transaction([
+      this.prismaService.projects.findMany({
+        skip: pageSize * (page - 1),
+        take: pageSize,
+        where,
+        orderBy: {
+          created: 'desc',
+        },
+        include: {
+          industries: true,
+        },
+      }),
+      this.prismaService.projects.count({
+        where,
+      }),
+    ]);
   }
 }

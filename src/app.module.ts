@@ -13,7 +13,9 @@ import { MainCategoriesModule } from './main-categories/main-categories.module';
 import { SubCategoriesModule } from './sub-categories/sub-categories.module';
 import { BmsModule } from './bms/bms.module';
 import { UploadImageModule } from './upload-image/upload-image.module';
-import { util } from 'prettier';
+import { UsersModule } from './users/users.module';
+import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 
 const domainModules = [
   IndustriesModule,
@@ -29,8 +31,13 @@ const domainModules = [
 const utilModule = [PrismaModule, UploadImageModule];
 
 @Module({
-  imports: [...domainModules, ...utilModule],
-  controllers: [AppController, TeamsController],
-  providers: [AppService, TeamsService],
+  imports: [
+    ...domainModules,
+    ...utilModule,
+    UsersModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
