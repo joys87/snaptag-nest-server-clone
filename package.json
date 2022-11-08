@@ -89,7 +89,8 @@
       "^@app/upload-image(|/.*)$": "<rootDir>/libs/upload-image/src/$1",
       "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1",
       "^@app/utils(|/.*)$": "<rootDir>/libs/utils/src/$1",
-      "^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1"
+      "^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
+      "^@app/worker-server(|/.*)$": "<rootDir>/libs/worker-server/src/$1"
     }
   }
 }

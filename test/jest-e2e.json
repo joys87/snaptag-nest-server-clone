@@ -18,6 +18,8 @@
     "@app/utils/(.*)": "<rootDir>/../libs/utils/src/$1",
     "@app/utils": "<rootDir>/../libs/utils/src",
     "@app/config/(.*)": "<rootDir>/../libs/config/src/$1",
-    "@app/config": "<rootDir>/../libs/config/src"
+    "@app/config": "<rootDir>/../libs/config/src",
+    "@app/worker-server/(.*)": "<rootDir>/../libs/worker-server/src/$1",
+    "@app/worker-server": "<rootDir>/../libs/worker-server/src"
   }
 }

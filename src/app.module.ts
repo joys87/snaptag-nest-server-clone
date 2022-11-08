@@ -16,6 +16,7 @@ import { UploadImageModule } from './upload-image/upload-image.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
+import { ProductsModule } from './products/products.module';
 
 const domainModules = [
   IndustriesModule,
@@ -36,6 +37,7 @@ const utilModule = [PrismaModule, UploadImageModule];
     ...utilModule,
     UsersModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

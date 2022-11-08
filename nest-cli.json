@@ -38,6 +38,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/config/tsconfig.lib.json"
       }
+    },
+    "worker-server": {
+      "type": "library",
+      "root": "libs/worker-server",
+      "entryFile": "index",
+      "sourceRoot": "libs/worker-server/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/worker-server/tsconfig.lib.json"
+      }
     }
   },
   "compilerOptions": {

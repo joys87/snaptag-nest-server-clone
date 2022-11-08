@@ -15,7 +15,7 @@ export class TeamsService {
     private readonly teamsRepository: TeamsRepository,
     private readonly prismaService: PrismaService,
     private readonly uploadImageService: IUploadImage,
-  ) // 종속성 문제를 해결하기 위해 추상클래스인 IUploadImagefmf 생성자 기반으로 불러옴
+  ) // 종속성 문제를 해결하기 위해 추상클래스인 IUploadImage를 생성자 기반으로 불러옴
   // 관련된 아티클 기사 https://dev.to/ef/nestjs-dependency-injection-with-abstract-classes-4g65
   {}
 

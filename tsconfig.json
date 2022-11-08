@@ -41,6 +41,12 @@
       ],
       "@app/config/*": [
         "libs/config/src/*"
+      ],
+      "@app/worker-server": [
+        "libs/worker-server/src"
+      ],
+      "@app/worker-server/*": [
+        "libs/worker-server/src/*"
       ]
     }
   }
