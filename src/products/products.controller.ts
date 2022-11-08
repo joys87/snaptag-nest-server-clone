@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
-import { DataPipeline } from 'aws-sdk';
 import { CreateProductsForOfflineBodyRequestDto } from './dtos/create-products-for-offline-request.dto';
 import { CreateProductsForOfflineResponseDto } from './dtos/create-products-for-offline-response.dto';
 import { ProductsError } from './error';
@@ -44,7 +43,7 @@ export class ProductsController {
     );
 
     return new CreateProductsForOfflineResponseDto({
-      products,
+      //   products,
     });
   }
 }

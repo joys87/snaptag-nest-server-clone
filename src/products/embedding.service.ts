@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 import { IGetEmbeddingParamOptions, IGetLabcodeImageUrl } from './type';
 
 @Injectable()
@@ -37,6 +37,20 @@ export class EmbeddingService {
     return {
       productCode: embeddingParam.productSeq,
       labcodeImageUrl,
+    };
+  }
+}
+
+@Module({
+  providers: [connection],
+})
+export class DatabaseModule {
+  static forRoot(entities = [], options?): DynamicModule {
+    const providers = createDatabaseProviders(options, entities);
+    return {
+      module: DatabaseModule,
+      providers: providers,
+      ecports: providers,
     };
   }
 }
