@@ -4,7 +4,6 @@ import { Prisma, Projects } from '@prisma/client';
 
 import { PrismaService } from 'src/prisma';
 import { GetProjectsQueryRequestDto } from './dtos/snaptag/get-projects-request.dto';
-import { GetProjectsResponseDto } from './dtos/snaptag/get-projects-response.dto';
 import {
   IGetMaxCodeByIdsOptions,
   IGetMaxTeamCodeByIdsOptions,
@@ -75,6 +74,17 @@ export class ProjectsRepository {
         teamId,
         mainCategoryId,
         subCategoryId,
+      },
+    });
+  }
+
+  public findByIdWithBms(id: number) {
+    return this.prismaService.projects.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        bms: true,
       },
     });
   }

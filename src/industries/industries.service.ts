@@ -24,6 +24,20 @@ export class IndustriesService {
   //     : JsonService.parseForBigintType<Industries[]>(industries);
   // }
 
+  private validateIndustry(industry: Industries | null) {
+    if (!industry) {
+      throw new NotFoundException(IndustriesError.NOT_FOUND_INDUSTRIES);
+    }
+
+    return industry;
+  }
+
+  public async findById(industryId: number): Promise<Industries> {
+    const result = await this.industriesRepository.findById(industryId);
+
+    return this.validateIndustry(result);
+  }
+
   public async getIndustryOfVersion(
     industryId: number,
     versionId: number,

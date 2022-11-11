@@ -1,6 +1,5 @@
 import { Bms, Channel, Embedding, Prisma, Products } from '@prisma/client';
-
-import { GetProductsByUserForProgramRequestDto } from '../dto/program';
+import { GetProductsByUserForProgramRequestDto } from '../dtos/program/get-products-by-user-for-program-request.dto';
 
 export interface IFindRelatedProductByProjectIdOptions {
   projectId: number;

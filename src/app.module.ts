@@ -17,6 +17,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { ProductsModule } from './products/products.module';
+import { WorkerServerModule } from '@app/worker-server';
 
 const domainModules = [
   IndustriesModule,
@@ -29,7 +30,7 @@ const domainModules = [
   BmsModule,
 ];
 
-const utilModule = [PrismaModule, UploadImageModule];
+const utilModule = [PrismaModule, UploadImageModule, WorkerServerModule];
 
 @Module({
   imports: [

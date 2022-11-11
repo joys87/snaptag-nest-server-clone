@@ -7,6 +7,7 @@ import { SubCategoriesModule } from 'src/sub-categories/sub-categories.module';
 import { TeamsModule } from 'src/teams/teams.module';
 import { IUploadImage } from 'src/upload-image/upload-image.interface';
 import { UploadImageService } from 'src/upload-image/upload-image.service';
+import { UsersModule } from 'src/users/users.module';
 import { VersionsModule } from 'src/versions/versions.module';
 import { ProjectsController } from './projects.controller';
 import { ProjectsRepository } from './projects.repository';
@@ -20,6 +21,7 @@ import { CalculateCodesService, ProjectsService } from './service';
     MainCategoriesModule,
     SubCategoriesModule,
     TeamsModule,
+    UsersModule,
     BmsModule,
   ],
   controllers: [ProjectsController],

@@ -1,9 +1,22 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ProductsError } from 'src/products/error';
+import { ProductsRepository } from 'src/products/repository/products.repository';
 import { isNumberExistIncludingZero } from 'src/shared/validate';
 import { ProjectsError } from '../error';
-
 import { ProjectsRepository } from '../projects.repository';
 import { ICalculateTeamCodeOptions, IGetMaxCodeByIdsOptions } from '../type';
+
+interface IExtractProductCode {
+  projectId: number;
+  userCode?: number;
+  maxProductCode: bigint;
+}
+
+interface IExtractUserCode {
+  userId: number;
+  projectId: number;
+  maxUserCode: bigint;
+}
 
 @Injectable()
 export class CalculateCodesService {
@@ -23,6 +36,8 @@ export class CalculateCodesService {
     }
     return project.teamCode;
   }
+
+  
 
   public async extractTeamCode(
     maxTeamCode: bigint,

@@ -7,7 +7,7 @@ import { GetVersionsResponseDto } from './dto/snaptag/get-versions-response.dto'
 import { VersionsService } from './versions.service';
 
 @Controller({ path: '/sa/versions', version: ['1'] })
-@ApiTags('[Embedding Version]')
+@ApiTags('[Embedding] Version')
 export class VersionsController {
   constructor(private readonly versionsService: VersionsService) {}
 

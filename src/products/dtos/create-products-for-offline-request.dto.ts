@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Channel, Embedding, Products, ProductStatus } from '@prisma/client';
+import { Channel, Embedding } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsEnum,

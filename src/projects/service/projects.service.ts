@@ -1,6 +1,11 @@
 import { JsonService } from '@app/utils/json';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma, ProjectStatus } from '@prisma/client';
+
 import _ from 'lodash';
 import { BmsService } from 'src/bms/bms.service';
 import { CountriesService } from 'src/countries/countries.service';
@@ -111,6 +116,16 @@ export class ProjectsService {
       subCategoryCode,
       bmCode,
     };
+  }
+
+  public async findActiveById(projectId: number) {
+    const result = await this.projectsRepository.findByIdWithBms(projectId);
+
+    if (!result || result.status !== ProjectStatus.ACTIVE) {
+      throw new NotFoundException(ProjectsError.NOT_FOUND_PROJECTS);
+    }
+
+    return result;
   }
 
   public async create(
